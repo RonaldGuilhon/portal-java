@@ -1,0 +1,26 @@
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── portal/
+│   │           ├── model/          # Entidades JPA
+│   │           ├── dao/            # Data Access Objects
+│   │           ├── service/        # Camada de negócio
+│   │           └── controller/     # Managed Beans JSF
+│   ├── resources/
+│   │   └── META-INF/
+│   │       └── persistence.xml     # Configuração JPA
+│   └── webapp/
+│       ├── WEB-INF/
+│       │   ├── web.xml
+│       │   └── faces-config.xml
+│       ├── pages/
+│       │   ├── public/             # Páginas públicas
+│       │   │   ├── home.xhtml
+│       │   │   └── noticia.xhtml
+│       │   └── admin/              # Páginas administrativas
+│       │       ├── login.xhtml
+│       │       ├── listar.xhtml
+│       │       └── form.xhtml
+│       └── resources/              # CSS, JS, imagens
+└── banco.sql                       # Script do banco de dados
