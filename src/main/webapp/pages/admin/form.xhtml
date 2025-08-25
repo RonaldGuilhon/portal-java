@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+    <title>#{noticiaController.noticia.id == null ? 'Nova' : 'Editar'} Notícia - Portal de Notícias</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <h:outputStylesheet library="css" name="style.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+</h:head>
+
+<h:body>
+    <f:view>
+        <!-- Verificação de autenticação -->
+        <f:event type="preRenderView" listener="#{loginController.verificarAutenticacao}"/>
+        
+        <!-- Navbar Admin -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <h:link class="navbar-brand" outcome="/pages/admin/listar.xhtml">
+                    <i class="fas fa-newspaper"></i> Portal Admin
+                </h:link>
+                
+                <div class="navbar-nav me-auto">
+                    <h:link class="nav-link" outcome="/pages/admin/listar.xhtml">
+                        <i class="fas fa-list"></i> Notícias
+                    </h:link>
+                    <h:panelGroup rendered="#{loginController.usuarioLogado.perfil == 'ADMIN'}">
+                        <h:link class="nav-link" outcome="/pages/admin/usuarios.xhtml">
+                            <i class="fas fa-users"></i> Usuários
+                        </h:link>
+                    </h:panelGroup>
+                </div>
+                
+                <div class="navbar-nav">
+                    <span class="navbar-text me-3">
+                        <i class="fas fa-user"></i> #{loginController.usuarioLogado.nome}
+                    </span>
+                    <h:form>
+                        <h:commandLink action="#{loginController.logout}" styleClass="nav-link">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </h:commandLink>
+                    </h:form>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Conteúdo Principal -->
+        <div class="container-fluid mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Cabeçalho -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2>
+                                <i class="fas #{noticiaController.noticia.id == null ? 'fa-plus' : 'fa-edit'}"></i> 
+                                #{noticiaController.noticia.id == null ? 'Nova' : 'Editar'} Notícia
+                            </h2>
+                            <p class="text-muted">
+                                #{noticiaController.noticia.id == null ? 'Crie uma nova notícia para o portal' : 'Edite as informações da notícia'}
+                            </p>
+                        </div>
+                        <h:link outcome="/pages/admin/listar.xhtml" styleClass="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </h:link>
+                    </div>
+                    
+                    <!-- Mensagens -->
+                    <h:messages globalOnly="true" styleClass="alert alert-danger" 
+                               showDetail="true" showSummary="false"/>
+                    
+                    <!-- Formulário -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h:form enctype="multipart/form-data">
+                                <div class="row">
+                                    <!-- Coluna Principal -->
+                                    <div class="col-md-8">
+                                        <!-- Título -->
+                                        <div class="mb-3">
+                                            <label for="titulo" class="form-label">
+                                                <i class="fas fa-heading"></i> Título *
+                                            </label>
+                                            <h:inputText id="titulo" value="#{noticiaController.noticia.titulo}" 
+                                                       styleClass="form-control" 
+                                                       placeholder="Digite o título da notícia"
+                                                       required="true"
+                                                       requiredMessage="Título é obrigatório"
+                                                       maxlength="200">
+                                                <f:validator validatorId="lengthValidator"/>
+                                                <f:attribute name="minimum" value="5"/>
+                                                <f:attribute name="maximum" value="200"/>
+                                            </h:inputText>
+                                            <h:message for="titulo" styleClass="text-danger small"/>
+                                            <div class="form-text">Mínimo 5 caracteres, máximo 200</div>
+                                        </div>
+                                        
+                                        <!-- Resumo -->
+                                        <div class="mb-3">
+                                            <label for="resumo" class="form-label">
+                                                <i class="fas fa-align-left"></i> Resumo *
+                                            </label>
+                                            <h:inputTextarea id="resumo" value="#{noticiaController.noticia.resumo}" 
+                                                           styleClass="form-control" 
+                                                           placeholder="Digite um resumo da notícia"
+                                                           rows="3"
+                                                           required="true"
+                                                           requiredMessage="Resumo é obrigatório"
+                                                           maxlength="500">
+                                                <f:validator validatorId="lengthValidator"/>
+                                                <f:attribute name="minimum" value="10"/>
+                                                <f:attribute name="maximum" value="500"/>
+                                            </h:inputTextarea>
+                                            <h:message for="resumo" styleClass="text-danger small"/>
+                                            <div class="form-text">Mínimo 10 caracteres, máximo 500</div>
+                                        </div>
+                                        
+                                        <!-- Conteúdo -->
+                                        <div class="mb-3">
+                                            <label for="conteudo" class="form-label">
+                                                <i class="fas fa-file-text"></i> Conteúdo *
+                                            </label>
+                                            <h:inputTextarea id="conteudo" value="#{noticiaController.noticia.conteudo}" 
+                                                           styleClass="form-control" 
+                                                           placeholder="Digite o conteúdo completo da notícia"
+                                                           rows="10"
+                                                           required="true"
+                                                           requiredMessage="Conteúdo é obrigatório">
+                                                <f:validator validatorId="lengthValidator"/>
+                                                <f:attribute name="minimum" value="50"/>
+                                            </h:inputTextarea>
+                                            <h:message for="conteudo" styleClass="text-danger small"/>
+                                            <div class="form-text">Mínimo 50 caracteres</div>
+                                        </div>
+                                        
+                                        <!-- URL da Imagem -->
+                                        <div class="mb-3">
+                                            <label for="imagemUrl" class="form-label">
+                                                <i class="fas fa-image"></i> URL da Imagem
+                                            </label>
+                                            <h:inputText id="imagemUrl" value="#{noticiaController.noticia.imagemUrl}" 
+                                                       styleClass="form-control" 
+                                                       placeholder="https://exemplo.com/imagem.jpg">
+                                                <f:validator validatorId="urlValidator"/>
+                                            </h:inputText>
+                                            <h:message for="imagemUrl" styleClass="text-danger small"/>
+                                            <div class="form-text">URL válida para a imagem da notícia (opcional)</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Coluna Lateral -->
+                                    <div class="col-md-4">
+                                        <!-- Preview da Imagem -->
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-eye"></i> Preview da Imagem
+                                            </label>
+                                            <div class="border rounded p-3 text-center bg-light" style="min-height: 200px;">
+                                                <h:panelGroup rendered="#{not empty noticiaController.noticia.imagemUrl}">
+                                                    <img src="#{noticiaController.noticia.imagemUrl}" 
+                                                         alt="Preview" 
+                                                         class="img-fluid rounded"
+                                                         style="max-height: 180px;"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+                                                    <div style="display: none;">
+                                                        <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
+                                                        <br/>
+                                                        <small class="text-muted">Erro ao carregar imagem</small>
+                                                    </div>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{empty noticiaController.noticia.imagemUrl}">
+                                                    <i class="fas fa-image text-muted fa-3x mb-2"></i>
+                                                    <br/>
+                                                    <small class="text-muted">Nenhuma imagem</small>
+                                                </h:panelGroup>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Status -->
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-toggle-on"></i> Status
+                                            </label>
+                                            <div class="form-check form-switch">
+                                                <h:selectBooleanCheckbox id="ativa" value="#{noticiaController.noticia.ativa}" 
+                                                                       styleClass="form-check-input"/>
+                                                <label class="form-check-label" for="ativa">
+                                                    Notícia ativa (visível no site)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Data de Publicação -->
+                                        <div class="mb-3">
+                                            <label for="dataPublicacao" class="form-label">
+                                                <i class="fas fa-calendar"></i> Data de Publicação
+                                            </label>
+                                            <h:inputText id="dataPublicacao" 
+                                                       value="#{noticiaController.noticia.dataPublicacao}" 
+                                                       styleClass="form-control"
+                                                       readonly="#{noticiaController.noticia.id != null}">
+                                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                            </h:inputText>
+                                            <div class="form-text">
+                                                #{noticiaController.noticia.id == null ? 'Será definida automaticamente' : 'Data original da publicação'}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Informações do Autor -->
+                                        <h:panelGroup rendered="#{noticiaController.noticia.id != null}">
+                                            <div class="mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-user"></i> Autor
+                                                </label>
+                                                <div class="form-control-plaintext">
+                                                    #{noticiaController.noticia.autor.nome}
+                                                </div>
+                                            </div>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botões de Ação -->
+                                <hr/>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h:commandButton value="#{noticiaController.noticia.id == null ? 'Criar Notícia' : 'Salvar Alterações'}" 
+                                                       action="#{noticiaController.salvar}"
+                                                       styleClass="btn btn-primary me-2">
+                                            <i class="fas #{noticiaController.noticia.id == null ? 'fa-plus' : 'fa-save'}"></i>
+                                        </h:commandButton>
+                                        
+                                        <h:commandButton value="Salvar e Continuar" 
+                                                       action="#{noticiaController.salvarEContinuar}"
+                                                       styleClass="btn btn-success me-2"
+                                                       rendered="#{noticiaController.noticia.id == null}">
+                                            <i class="fas fa-plus-circle"></i>
+                                        </h:commandButton>
+                                    </div>
+                                    
+                                    <div>
+                                        <h:commandButton value="Limpar Formulário" 
+                                                       action="#{noticiaController.limparFormulario}"
+                                                       styleClass="btn btn-outline-warning me-2"
+                                                       immediate="true"
+                                                       onclick="return confirm('Tem certeza que deseja limpar o formulário? Todas as alterações não salvas serão perdidas.')">
+                                            <i class="fas fa-eraser"></i>
+                                        </h:commandButton>
+                                        
+                                        <h:link outcome="/pages/admin/listar.xhtml" styleClass="btn btn-outline-secondary">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </h:link>
+                                    </div>
+                                </div>
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Script para preview da imagem -->
+        <script>
+            function updateImagePreview() {
+                const urlInput = document.getElementById('imagemUrl');
+                const preview = document.querySelector('.image-preview img');
+                const placeholder = document.querySelector('.image-placeholder');
+                
+                if (urlInput && urlInput.value) {
+                    if (preview) {
+                        preview.src = urlInput.value;
+                        preview.style.display = 'block';
+                    }
+                    if (placeholder) {
+                        placeholder.style.display = 'none';
+                    }
+                } else {
+                    if (preview) {
+                        preview.style.display = 'none';
+                    }
+                    if (placeholder) {
+                        placeholder.style.display = 'block';
+                    }
+                }
+            }
+            
+            // Atualizar preview quando a URL da imagem mudar
+            document.addEventListener('DOMContentLoaded', function() {
+                const urlInput = document.getElementById('imagemUrl');
+                if (urlInput) {
+                    urlInput.addEventListener('input', updateImagePreview);
+                    urlInput.addEventListener('blur', updateImagePreview);
+                }
+            });
+        </script>
+    </f:view>
+</h:body>
+</html>

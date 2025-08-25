@@ -91,6 +91,14 @@
             <version>2.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Java EE API (inclui @PostConstruct) -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

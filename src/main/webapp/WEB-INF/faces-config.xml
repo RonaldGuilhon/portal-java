@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+              http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+              version="2.3">
+
+    <!-- Configuração da aplicação -->
+    <application>
+        <locale-config>
+            <default-locale>pt_BR</default-locale>
+            <supported-locale>pt_BR</supported-locale>
+            <supported-locale>en_US</supported-locale>
+        </locale-config>
+        
+        <resource-bundle>
+            <base-name>messages</base-name>
+            <var>msg</var>
+        </resource-bundle>
+        
+        <message-bundle>messages</message-bundle>
+    </application>
+
+    <!-- Managed Beans -->
+    <managed-bean>
+        <managed-bean-name>loginController</managed-bean-name>
+        <managed-bean-class>com.portal.controller.LoginController</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>noticiaController</managed-bean-name>
+        <managed-bean-class>com.portal.controller.NoticiaController</managed-bean-class>
+        <managed-bean-scope>view</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>homeController</managed-bean-name>
+        <managed-bean-class>com.portal.controller.HomeController</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>usuarioController</managed-bean-name>
+        <managed-bean-class>com.portal.controller.UsuarioController</managed-bean-class>
+        <managed-bean-scope>view</managed-bean-scope>
+    </managed-bean>
+
+    <!-- Regras de navegação -->
+    <navigation-rule>
+        <from-view-id>/pages/admin/login.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>success</from-outcome>
+            <to-view-id>/pages/admin/listar.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>failure</from-outcome>
+            <to-view-id>/pages/admin/login.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/admin/*</from-view-id>
+        <navigation-case>
+            <from-outcome>logout</from-outcome>
+            <to-view-id>/pages/public/home.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/admin/listar.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>form</from-outcome>
+            <to-view-id>/pages/admin/form.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/admin/form.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>success</from-outcome>
+            <to-view-id>/pages/admin/listar.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>continue</from-outcome>
+            <to-view-id>/pages/admin/form.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/pages/public/home.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>noticia</from-outcome>
+            <to-view-id>/pages/public/noticia.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+    <!-- Validadores personalizados -->
+    <validator>
+        <validator-id>emailValidator</validator-id>
+        <validator-class>com.portal.validator.EmailValidator</validator-class>
+    </validator>
+
+    <validator>
+        <validator-id>lengthValidator</validator-id>
+        <validator-class>com.portal.validator.LengthValidator</validator-class>
+    </validator>
+
+    <validator>
+        <validator-id>urlValidator</validator-id>
+        <validator-class>com.portal.validator.UrlValidator</validator-class>
+    </validator>
+
+    <!-- Conversores personalizados -->
+    <converter>
+        <converter-id>dateTimeConverter</converter-id>
+        <converter-class>com.portal.converter.DateTimeConverter</converter-class>
+    </converter>
+
+</faces-config>
