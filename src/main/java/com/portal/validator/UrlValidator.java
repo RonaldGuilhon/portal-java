@@ -24,7 +24,7 @@ public class UrlValidator implements Validator<Object> {
         String url = value.toString().trim();
         
         try {
-            new URL(url);
+            URL urlObject = new URL(url);
         } catch (MalformedURLException e) {
             FacesMessage message = new FacesMessage(
                 FacesMessage.SEVERITY_ERROR,
