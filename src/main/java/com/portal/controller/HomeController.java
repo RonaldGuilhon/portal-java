@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller para a página pública (home)
@@ -47,8 +48,15 @@ public class HomeController implements Serializable {
      */
     public String verNoticia() {
         if (noticiaId != null) {
-            noticiaDetalhes = noticiaService.buscarPorId(noticiaId);
-            return "/pages/public/noticia.xhtml?faces-redirect=true";
+            Optional<Noticia> noticiaOpt = noticiaService.buscarPorId(noticiaId);
+            if (noticiaOpt.isPresent()) {
+                noticiaDetalhes = noticiaOpt.get();
+                return "/pages/public/noticia.xhtml?faces-redirect=true";
+            } else {
+                FacesContext.getCurrentInstance().addMessage(null, 
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+                        "Erro", "Notícia não encontrada"));
+            }
         }
         return null;
     }

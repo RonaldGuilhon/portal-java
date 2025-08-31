@@ -15,22 +15,19 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jsf.version>2.3.9</jsf.version>
-        <hibernate.version>5.6.15.Final</hibernate.version>
+        <jsf.version>2.3.17</jsf.version>
+        <hibernate.version>5.4.32.Final</hibernate.version>
+        <mysql.version>8.0.33</mysql.version>
+        <validation.version>2.0.1.Final</validation.version>
     </properties>
 
     <dependencies>
         <!-- JSF Implementation -->
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>javax.faces</artifactId>
-            <version>2.3.9</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>jakarta.faces</artifactId>
+            <version>2.3.17</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Servlet API -->
@@ -89,28 +86,24 @@
 
         <!-- MySQL Connector -->
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
         </dependency>
 
         <!-- Bean Validation -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
+            <version>${validation.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.2.5.Final</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>jakarta.validation</groupId>
-                    <artifactId>jakarta.validation-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>6.1.7.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- CDI -->

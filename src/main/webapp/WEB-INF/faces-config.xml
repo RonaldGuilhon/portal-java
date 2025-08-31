@@ -21,30 +21,7 @@
         <message-bundle>messages</message-bundle>
     </application>
 
-    <!-- Managed Beans -->
-    <managed-bean>
-        <managed-bean-name>loginController</managed-bean-name>
-        <managed-bean-class>com.portal.controller.LoginController</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>noticiaController</managed-bean-name>
-        <managed-bean-class>com.portal.controller.NoticiaController</managed-bean-class>
-        <managed-bean-scope>view</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>homeController</managed-bean-name>
-        <managed-bean-class>com.portal.controller.HomeController</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>usuarioController</managed-bean-name>
-        <managed-bean-class>com.portal.controller.UsuarioController</managed-bean-class>
-        <managed-bean-scope>view</managed-bean-scope>
-    </managed-bean>
+    <!-- Managed Beans agora são gerenciados via CDI com anotações @Named e @RequestScoped/@ViewScoped/@SessionScoped -->
 
     <!-- Regras de navegação -->
     <navigation-rule>

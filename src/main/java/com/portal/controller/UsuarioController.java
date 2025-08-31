@@ -13,6 +13,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Controller para gerenciamento de usuários (apenas admin)
@@ -58,11 +60,13 @@ public class UsuarioController implements Serializable {
      * Carrega usuário para edição
      */
     public String editarUsuario() {
-        if (usuarioId != null) {
-            usuario = usuarioService.buscarPorId(usuarioId);
-            return "/pages/admin/usuario-form.xhtml?faces-redirect=true";
-        }
-        return null;
+        return Optional.ofNullable(usuarioId)
+            .flatMap(usuarioService::buscarPorId)
+            .map(u -> {
+                this.usuario = u;
+                return "/pages/admin/usuario-form.xhtml?faces-redirect=true";
+            })
+            .orElse(null);
     }
     
     /**
@@ -70,28 +74,20 @@ public class UsuarioController implements Serializable {
      */
     public String salvar() {
         try {
-            if (usuario.getId() == null) {
-                // Novo usuário
-                usuarioService.salvar(usuario);
-                
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, 
-                        "Sucesso", "Usuário criado com sucesso!"));
-            } else {
+            if (usuario.getId() != null) {
                 // Edição
                 usuarioService.atualizar(usuario);
-                
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, 
-                        "Sucesso", "Usuário atualizado com sucesso!"));
+                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Usuário atualizado com sucesso!");
+            } else {
+                // Novo usuário
+                usuarioService.salvar(usuario);
+                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Usuário criado com sucesso!");
             }
             
             return "/pages/admin/usuarios.xhtml?faces-redirect=true";
             
         } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao salvar", e.getMessage()));
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro ao salvar", e.getMessage());
             return null;
         }
     }
@@ -100,28 +96,34 @@ public class UsuarioController implements Serializable {
      * Exclui um usuário
      */
     public void excluir() {
-        try {
-            if (usuarioId != null) {
-                // Não permite excluir o próprio usuário
-                if (usuarioId.equals(loginController.getUsuarioLogado().getId())) {
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                            "Erro", "Você não pode excluir seu próprio usuário"));
-                    return;
+        Optional.ofNullable(usuarioId)
+            .ifPresent(id -> {
+                try {
+                    // Verifica se não está tentando excluir o próprio usuário
+                    Optional<Long> loggedUserId = Optional.ofNullable(loginController.getUsuarioLogado())
+                        .map(Usuario::getId);
+                    
+                    if (loggedUserId.isPresent() && loggedUserId.get().equals(id)) {
+                        adicionarMensagem(FacesMessage.SEVERITY_ERROR, 
+                            "Erro", "Você não pode excluir seu próprio usuário");
+                    } else {
+                        usuarioService.excluir(id);
+                        carregarUsuarios();
+                        adicionarMensagem(FacesMessage.SEVERITY_INFO, 
+                            "Sucesso", "Usuário excluído com sucesso!");
+                    }
+                } catch (ServiceException e) {
+                    adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro ao excluir", e.getMessage());
                 }
-                
-                usuarioService.excluir(usuarioId);
-                carregarUsuarios(); // Recarrega a lista
-                
-                FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, 
-                        "Sucesso", "Usuário excluído com sucesso!"));
-            }
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao excluir", e.getMessage()));
-        }
+            });
+    }
+    
+    /**
+     * Adiciona mensagem ao contexto JSF
+     */
+    private void adicionarMensagem(FacesMessage.Severity severity, String summary, String detail) {
+        FacesContext.getCurrentInstance().addMessage(null, 
+            new FacesMessage(severity, summary, detail));
     }
     
     /**

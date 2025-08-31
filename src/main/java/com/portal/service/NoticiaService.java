@@ -7,6 +7,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Serviço para operações de negócio relacionadas a notícias.
@@ -25,9 +28,12 @@ public class NoticiaService {
         validarNoticia(noticia);
         
         // Define a data de publicação se não foi definida
-        if (noticia.getDataPublicacao() == null) {
-            noticia.setDataPublicacao(LocalDateTime.now());
-        }
+        Optional.ofNullable(noticia.getDataPublicacao())
+            .orElseGet(() -> {
+                LocalDateTime agora = LocalDateTime.now();
+                noticia.setDataPublicacao(agora);
+                return agora;
+            });
         
         noticiaDAO.save(noticia);
     }
@@ -38,10 +44,8 @@ public class NoticiaService {
     public Noticia atualizar(Noticia noticia) throws ServiceException {
         validarNoticia(noticia);
         
-        Noticia noticiaExistente = noticiaDAO.findById(noticia.getId());
-        if (noticiaExistente == null) {
-            throw new ServiceException("Notícia não encontrada");
-        }
+        noticiaDAO.findById(noticia.getId())
+            .orElseThrow(() -> new ServiceException("Notícia não encontrada"));
         
         return noticiaDAO.update(noticia);
     }
@@ -49,7 +53,7 @@ public class NoticiaService {
     /**
      * Busca notícia por ID
      */
-    public Noticia buscarPorId(Long id) {
+    public Optional<Noticia> buscarPorId(Long id) {
         return noticiaDAO.findById(id);
     }
     
@@ -71,35 +75,45 @@ public class NoticiaService {
      * Busca notícias por título
      */
     public List<Noticia> buscarPorTitulo(String titulo) {
-        if (titulo == null || titulo.trim().isEmpty()) {
-            return listarTodas();
-        }
-        return noticiaDAO.findByTitulo(titulo.trim());
+        return Optional.ofNullable(titulo)
+            .filter(t -> !t.isEmpty())
+            .filter(t -> !t.trim().isEmpty())
+            .map(String::trim)
+            .map(noticiaDAO::findByTitulo)
+            .orElseGet(this::listarTodas);
     }
     
     /**
      * Lista as últimas notícias
      */
     public List<Noticia> listarUltimas(int limite) {
-        if (limite <= 0) {
-            limite = 10; // Padrão
-        }
-        return noticiaDAO.findLatest(limite);
+        int limiteValido = limite <= 0 ? 10 : limite; // Padrão
+        return noticiaDAO.findLatest(limiteValido);
+    }
+    
+    /**
+     * Busca notícias por palavras-chave
+     */
+    public List<Noticia> buscarPorPalavrasChave(String keywords) {
+        return Optional.ofNullable(keywords)
+            .filter(k -> !k.isEmpty())
+            .filter(k -> !k.trim().isEmpty())
+            .map(String::trim)
+            .map(noticiaDAO::findByKeywords)
+            .orElse(java.util.Collections.emptyList());
     }
     
     /**
      * Exclui uma notícia
      */
     public void excluir(Long id, Usuario usuarioLogado) throws ServiceException {
-        Noticia noticia = noticiaDAO.findById(id);
-        if (noticia == null) {
-            throw new ServiceException("Notícia não encontrada");
-        }
+        Noticia noticia = noticiaDAO.findById(id)
+            .orElseThrow(() -> new ServiceException("Notícia não encontrada"));
         
         // Verifica se o usuário pode excluir a notícia
-        if (!podeExcluir(noticia, usuarioLogado)) {
-            throw new ServiceException("Você não tem permissão para excluir esta notícia");
-        }
+        Optional.of(podeExcluir(noticia, usuarioLogado))
+            .filter(Boolean::booleanValue)
+            .orElseThrow(() -> new ServiceException("Você não tem permissão para excluir esta notícia"));
         
         noticiaDAO.delete(id);
     }
@@ -108,17 +122,13 @@ public class NoticiaService {
      * Verifica se o usuário pode editar a notícia
      */
     public boolean podeEditar(Noticia noticia, Usuario usuario) {
-        if (usuario == null || noticia == null) {
-            return false;
-        }
-        
-        // Admin pode editar qualquer notícia
-        if (usuario.isAdmin()) {
-            return true;
-        }
-        
-        // Autor pode editar sua própria notícia
-        return noticia.getAutor() != null && noticia.getAutor().getId().equals(usuario.getId());
+        return Optional.ofNullable(usuario)
+            .filter(u -> noticia != null)
+            .map(u -> u.isAdmin() || 
+                Optional.ofNullable(noticia.getAutor())
+                    .map(autor -> autor.getId().equals(u.getId()))
+                    .orElse(false))
+            .orElse(false);
     }
     
     /**
@@ -132,28 +142,41 @@ public class NoticiaService {
      * Valida os dados da notícia
      */
     private void validarNoticia(Noticia noticia) throws ServiceException {
-        if (noticia == null) {
-            throw new ServiceException("Notícia não pode ser nula");
-        }
+        Optional.ofNullable(noticia)
+            .orElseThrow(() -> new ServiceException("Notícia não pode ser nula"));
         
-        if (noticia.getTitulo() == null || noticia.getTitulo().trim().isEmpty()) {
-            throw new ServiceException("Título é obrigatório");
-        }
+        validarTitulo(noticia.getTitulo());
+        validarConteudo(noticia.getConteudo());
         
-        if (noticia.getTitulo().length() < 5) {
-            throw new ServiceException("Título deve ter pelo menos 5 caracteres");
-        }
+        Optional.ofNullable(noticia.getAutor())
+            .orElseThrow(() -> new ServiceException("Autor é obrigatório"));
+    }
+    
+    /**
+     * Valida o título da notícia
+     */
+    private void validarTitulo(String titulo) throws ServiceException {
+        Optional.ofNullable(titulo)
+            .filter(t -> !t.isEmpty())
+            .filter(t -> !t.trim().isEmpty())
+            .orElseThrow(() -> new ServiceException("Título é obrigatório"));
         
-        if (noticia.getConteudo() == null || noticia.getConteudo().trim().isEmpty()) {
-            throw new ServiceException("Conteúdo é obrigatório");
-        }
+        Optional.ofNullable(titulo)
+            .filter(t -> t.length() >= 5)
+            .orElseThrow(() -> new ServiceException("Título deve ter pelo menos 5 caracteres"));
+    }
+    
+    /**
+     * Valida o conteúdo da notícia
+     */
+    private void validarConteudo(String conteudo) throws ServiceException {
+        Optional.ofNullable(conteudo)
+            .filter(c -> !c.isEmpty())
+            .filter(c -> !c.trim().isEmpty())
+            .orElseThrow(() -> new ServiceException("Conteúdo é obrigatório"));
         
-        if (noticia.getConteudo().length() < 10) {
-            throw new ServiceException("Conteúdo deve ter pelo menos 10 caracteres");
-        }
-        
-        if (noticia.getAutor() == null) {
-            throw new ServiceException("Autor é obrigatório");
-        }
+        Optional.ofNullable(conteudo)
+            .filter(c -> c.length() >= 10)
+            .orElseThrow(() -> new ServiceException("Conteúdo deve ter pelo menos 10 caracteres"));
     }
 }

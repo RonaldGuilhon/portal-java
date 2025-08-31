@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller para gerenciamento de notícias na área administrativa
@@ -59,7 +60,14 @@ public class NoticiaController implements Serializable {
      */
     public String editarNoticia() {
         if (noticiaId != null) {
-            noticia = noticiaService.buscarPorId(noticiaId);
+            Optional<Noticia> noticiaOpt = noticiaService.buscarPorId(noticiaId);
+            if (!noticiaOpt.isPresent()) {
+                FacesContext.getCurrentInstance().addMessage(null, 
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+                        "Erro", "Notícia não encontrada"));
+                return null;
+            }
+            noticia = noticiaOpt.get();
             
             // Verifica permissão de edição
             if (!noticiaService.podeEditar(noticia, loginController.getUsuarioLogado())) {
@@ -113,7 +121,14 @@ public class NoticiaController implements Serializable {
     public void excluir() {
         try {
             if (noticiaId != null) {
-                Noticia noticiaParaExcluir = noticiaService.buscarPorId(noticiaId);
+                Optional<Noticia> noticiaOpt = noticiaService.buscarPorId(noticiaId);
+                if (!noticiaOpt.isPresent()) {
+                    FacesContext.getCurrentInstance().addMessage(null, 
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+                            "Erro", "Notícia não encontrada"));
+                    return;
+                }
+                Noticia noticiaParaExcluir = noticiaOpt.get();
                 
                 // Verifica permissão de exclusão
                 if (!noticiaService.podeExcluir(noticiaParaExcluir, loginController.getUsuarioLogado())) {

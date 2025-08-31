@@ -8,6 +8,8 @@ import javax.inject.Inject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Serviço para operações de negócio relacionadas a usuários.
@@ -43,10 +45,11 @@ public class UsuarioService {
         validarUsuario(usuario);
         
         // Verifica se email já existe para outro usuário
-        Usuario usuarioExistente = usuarioDAO.findByEmail(usuario.getEmail());
-        if (usuarioExistente != null && !usuarioExistente.getId().equals(usuario.getId())) {
-            throw new ServiceException("Email já está em uso por outro usuário");
-        }
+        usuarioDAO.findByEmail(usuario.getEmail())
+            .filter(existente -> !existente.getId().equals(usuario.getId()))
+            .ifPresent(existente -> {
+                throw new RuntimeException("Email já está em uso por outro usuário");
+            });
         
         return usuarioDAO.update(usuario);
     }
@@ -55,28 +58,18 @@ public class UsuarioService {
      * Autentica um usuário
      */
     public Usuario autenticar(String email, String senha) throws ServiceException {
-        if (email == null || email.trim().isEmpty()) {
-            throw new ServiceException("Email é obrigatório");
-        }
-        
-        if (senha == null || senha.trim().isEmpty()) {
-            throw new ServiceException("Senha é obrigatória");
-        }
+        validarCampoObrigatorio(email, "Email é obrigatório");
+        validarCampoObrigatorio(senha, "Senha é obrigatória");
         
         String senhaCriptografada = criptografarSenha(senha);
-        Usuario usuario = usuarioDAO.authenticate(email, senhaCriptografada);
-        
-        if (usuario == null) {
-            throw new ServiceException("Email ou senha inválidos");
-        }
-        
-        return usuario;
+        return usuarioDAO.authenticate(email, senhaCriptografada)
+            .orElseThrow(() -> new ServiceException("Email ou senha inválidos"));
     }
     
     /**
      * Busca usuário por ID
      */
-    public Usuario buscarPorId(Long id) {
+    public Optional<Usuario> buscarPorId(Long id) {
         return usuarioDAO.findById(id);
     }
     
@@ -91,41 +84,57 @@ public class UsuarioService {
      * Exclui um usuário
      */
     public void excluir(Long id) throws ServiceException {
-        Usuario usuario = usuarioDAO.findById(id);
-        if (usuario == null) {
-            throw new ServiceException("Usuário não encontrado");
-        }
+        usuarioDAO.findById(id)
+            .orElseThrow(() -> new ServiceException("Usuário não encontrado"));
         
         usuarioDAO.delete(id);
+    }
+    
+    /**
+     * Busca usuário por email
+     */
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return usuarioDAO.findByEmail(email);
     }
     
     /**
      * Valida os dados do usuário
      */
     private void validarUsuario(Usuario usuario) throws ServiceException {
-        if (usuario == null) {
-            throw new ServiceException("Usuário não pode ser nulo");
-        }
+        Optional.ofNullable(usuario)
+            .orElseThrow(() -> new ServiceException("Usuário não pode ser nulo"));
         
-        if (usuario.getNome() == null || usuario.getNome().trim().isEmpty()) {
-            throw new ServiceException("Nome é obrigatório");
-        }
+        validarCampoObrigatorio(usuario.getNome(), "Nome é obrigatório");
+        validarCampoObrigatorio(usuario.getEmail(), "Email é obrigatório");
+        validarCampoObrigatorio(usuario.getSenha(), "Senha é obrigatória");
         
-        if (usuario.getEmail() == null || usuario.getEmail().trim().isEmpty()) {
-            throw new ServiceException("Email é obrigatório");
-        }
+        validarTamanhoSenha(usuario.getSenha());
         
-        if (usuario.getSenha() == null || usuario.getSenha().trim().isEmpty()) {
-            throw new ServiceException("Senha é obrigatória");
-        }
-        
-        if (usuario.getSenha().length() < 6) {
-            throw new ServiceException("Senha deve ter pelo menos 6 caracteres");
-        }
-        
-        if (usuario.getPerfil() == null) {
-            usuario.setPerfil(PerfilUsuario.LEITOR);
-        }
+        // Define perfil padrão se não informado
+        Optional.ofNullable(usuario.getPerfil())
+            .orElseGet(() -> {
+                usuario.setPerfil(PerfilUsuario.LEITOR);
+                return PerfilUsuario.LEITOR;
+            });
+    }
+    
+    /**
+     * Valida se um campo obrigatório não está vazio
+     */
+    private void validarCampoObrigatorio(String campo, String mensagem) throws ServiceException {
+        Optional.ofNullable(campo)
+            .filter(s -> !s.isEmpty())
+            .filter(s -> !s.trim().isEmpty())
+            .orElseThrow(() -> new ServiceException(mensagem));
+    }
+    
+    /**
+     * Valida o tamanho mínimo da senha
+     */
+    private void validarTamanhoSenha(String senha) throws ServiceException {
+        Optional.ofNullable(senha)
+            .filter(s -> s.length() >= 6)
+            .orElseThrow(() -> new ServiceException("Senha deve ter pelo menos 6 caracteres"));
     }
     
     /**

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
-             http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-             version="2.0">
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
 
     <persistence-unit name="portal-noticias-pu" transaction-type="JTA">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
@@ -14,15 +14,27 @@
         <class>com.portal.model.Noticia</class>
         
         <properties>
-            <!-- Configurações do Hibernate -->
+            <!-- Configurações do Hibernate para JPA 2.2 -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.use_sql_comments" value="true"/>
             
-            <!-- Configurações específicas para GlassFish -->
+            <!-- Configurações específicas para GlassFish 5 -->
             <property name="hibernate.transaction.jta.platform" value="org.hibernate.engine.transaction.jta.platform.SunOneJtaPlatform"/>
+            
+            <!-- Configurações de performance e cache -->
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+            <property name="hibernate.cache.use_query_cache" value="false"/>
+            
+            <!-- Configurações de conexão -->
+            <property name="hibernate.connection.autocommit" value="false"/>
+            <property name="hibernate.connection.release_mode" value="auto"/>
+            
+            <!-- Configurações JPA 2.2 específicas -->
+            <property name="javax.persistence.schema-generation.database.action" value="none"/>
+            <property name="javax.persistence.validation.mode" value="AUTO"/>
         </properties>
     </persistence-unit>
 </persistence>
