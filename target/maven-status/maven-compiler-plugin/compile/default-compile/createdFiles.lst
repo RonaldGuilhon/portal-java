@@ -1,0 +1,13 @@
+com\portal\model\PerfilUsuario.class
+com\portal\dao\GenericDAO.class
+com\portal\service\ServiceException.class
+com\portal\validator\LengthValidator.class
+com\portal\dao\UsuarioDAO.class
+com\portal\dao\NoticiaDAO.class
+com\portal\model\Usuario.class
+com\portal\filter\AuthenticationFilter.class
+com\portal\service\NoticiaService.class
+com\portal\validator\EmailValidator.class
+com\portal\model\Noticia.class
+com\portal\service\UsuarioService.class
+com\portal\validator\UrlValidator.class

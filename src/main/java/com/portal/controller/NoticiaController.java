@@ -136,7 +136,7 @@ public class NoticiaController implements Serializable {
                     return;
                 }
                 
-                noticiaService.excluir(noticiaId);
+                noticiaService.excluir(noticiaId, loginController.getUsuarioLogado());
                 carregarNoticias(); // Recarrega a lista
                 
                 FacesContext.getCurrentInstance().addMessage(null, 

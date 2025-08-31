@@ -43,13 +43,7 @@ public class UsuarioController implements Serializable {
      * Carrega todos os usuários
      */
     public void carregarUsuarios() {
-        try {
-            usuarios = usuarioService.listarTodos();
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao carregar usuários", e.getMessage()));
-        }
+        usuarios = usuarioService.listarTodos();
     }
     
     /**
@@ -64,15 +58,9 @@ public class UsuarioController implements Serializable {
      * Carrega usuário para edição
      */
     public String editarUsuario() {
-        try {
-            if (usuarioId != null) {
-                usuario = usuarioService.buscarPorId(usuarioId);
-                return "/pages/admin/usuario-form.xhtml?faces-redirect=true";
-            }
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao carregar usuário", e.getMessage()));
+        if (usuarioId != null) {
+            usuario = usuarioService.buscarPorId(usuarioId);
+            return "/pages/admin/usuario-form.xhtml?faces-redirect=true";
         }
         return null;
     }
