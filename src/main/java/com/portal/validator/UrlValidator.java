@@ -11,7 +11,7 @@ import java.net.URL;
 /**
  * Validador personalizado para URLs
  */
-public class UrlValidator implements Validator {
+public class UrlValidator implements Validator<Object> {
 
     @Override
     public void validate(FacesContext context, UIComponent component, Object value)

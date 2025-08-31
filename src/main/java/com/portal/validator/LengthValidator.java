@@ -9,7 +9,7 @@ import javax.faces.validator.ValidatorException;
 /**
  * Validador personalizado para comprimento de texto
  */
-public class LengthValidator implements Validator {
+public class LengthValidator implements Validator<Object> {
 
     @Override
     public void validate(FacesContext context, UIComponent component, Object value)

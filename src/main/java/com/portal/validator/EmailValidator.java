@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Validador personalizado para emails
  */
-public class EmailValidator implements Validator {
+public class EmailValidator implements Validator<Object> {
     
     private static final String EMAIL_PATTERN = 
         "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@" +
