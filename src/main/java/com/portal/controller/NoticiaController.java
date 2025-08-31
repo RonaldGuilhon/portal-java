@@ -42,13 +42,7 @@ public class NoticiaController implements Serializable {
      * Carrega todas as notícias
      */
     public void carregarNoticias() {
-        try {
-            noticias = noticiaService.listarTodas();
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao carregar notícias", e.getMessage()));
-        }
+        noticias = noticiaService.listarTodas();
     }
     
     /**
@@ -64,25 +58,19 @@ public class NoticiaController implements Serializable {
      * Carrega notícia para edição
      */
     public String editarNoticia() {
-        try {
-            if (noticiaId != null) {
-                noticia = noticiaService.buscarPorId(noticiaId);
-                
-                // Verifica permissão de edição
-                if (!noticiaService.podeEditar(noticia, loginController.getUsuarioLogado())) {
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                            "Acesso negado", 
-                            "Você não tem permissão para editar esta notícia"));
-                    return null;
-                }
-                
-                return "/pages/admin/form.xhtml?faces-redirect=true";
+        if (noticiaId != null) {
+            noticia = noticiaService.buscarPorId(noticiaId);
+            
+            // Verifica permissão de edição
+            if (!noticiaService.podeEditar(noticia, loginController.getUsuarioLogado())) {
+                FacesContext.getCurrentInstance().addMessage(null, 
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+                        "Acesso negado", 
+                        "Você não tem permissão para editar esta notícia"));
+                return null;
             }
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao carregar notícia", e.getMessage()));
+            
+            return "/pages/admin/form.xhtml?faces-redirect=true";
         }
         return null;
     }

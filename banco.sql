@@ -2,11 +2,11 @@
 -- MySQL 8.0+
 
 -- Criar banco de dados
-CREATE DATABASE IF NOT EXISTS portal_noticias 
+CREATE DATABASE IF NOT EXISTS portal_noticias_java
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE portal_noticias;
+USE portal_noticias_java;
 
 -- Tabela de usuários
 CREATE TABLE usuarios (
@@ -91,7 +91,7 @@ INSERT INTO noticias (titulo, resumo, conteudo, publicada, data_publicacao, usua
 );
 
 -- Criar índices adicionais para otimização de consultas
-CREATE INDEX idx_noticias_busca ON noticias(titulo, resumo);
+CREATE INDEX idx_noticias_busca ON noticias(titulo, resumo(255));
 CREATE INDEX idx_noticias_publicadas_data ON noticias(publicada, data_publicacao DESC);
 
 -- Criar view para notícias publicadas com informações do autor

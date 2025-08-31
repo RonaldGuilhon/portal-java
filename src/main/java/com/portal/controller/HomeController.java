@@ -2,7 +2,6 @@ package com.portal.controller;
 
 import com.portal.model.Noticia;
 import com.portal.service.NoticiaService;
-import com.portal.service.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
@@ -40,28 +39,16 @@ public class HomeController implements Serializable {
      * Carrega as últimas notícias para exibição na home
      */
     public void carregarUltimasNoticias() {
-        try {
-            ultimasNoticias = noticiaService.listarUltimas(10);
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao carregar notícias", e.getMessage()));
-        }
+        ultimasNoticias = noticiaService.listarUltimas(10);
     }
     
     /**
      * Carrega detalhes de uma notícia específica
      */
     public String verNoticia() {
-        try {
-            if (noticiaId != null) {
-                noticiaDetalhes = noticiaService.buscarPorId(noticiaId);
-                return "/pages/public/noticia.xhtml?faces-redirect=true";
-            }
-        } catch (ServiceException e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro ao carregar notícia", e.getMessage()));
+        if (noticiaId != null) {
+            noticiaDetalhes = noticiaService.buscarPorId(noticiaId);
+            return "/pages/public/noticia.xhtml?faces-redirect=true";
         }
         return null;
     }
@@ -70,24 +57,18 @@ public class HomeController implements Serializable {
      * Realiza busca por título
      */
     public void buscarNoticias() {
-        try {
-            if (termoBusca != null && !termoBusca.trim().isEmpty()) {
-                resultadosBusca = noticiaService.buscarPorTitulo(termoBusca.trim());
-                
-                if (resultadosBusca.isEmpty()) {
-                    FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, 
-                            "Busca", "Nenhuma notícia encontrada para: " + termoBusca));
-                }
-            } else {
+        if (termoBusca != null && !termoBusca.trim().isEmpty()) {
+            resultadosBusca = noticiaService.buscarPorTitulo(termoBusca.trim());
+            
+            if (resultadosBusca.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, 
-                        "Atenção", "Digite um termo para buscar"));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, 
+                        "Busca", "Nenhuma notícia encontrada para: " + termoBusca));
             }
-        } catch (ServiceException e) {
+        } else {
             FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-                    "Erro na busca", e.getMessage()));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, 
+                    "Atenção", "Digite um termo para buscar"));
         }
     }
     
